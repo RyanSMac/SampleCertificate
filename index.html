@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#153d35">
+  <title>Sampling Certificate</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d302d;
+      --muted: #64736f;
+      --line: #d7e0dc;
+      --paper: #fff;
+      --canvas: #f1f5f2;
+      --green: #153d35;
+      --green-soft: #e8f0ec;
+      --gold: #c7923f;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .topbar {
+      background: var(--green);
+      color: #fff;
+      padding: 18px max(24px, calc((100% - 1120px) / 2));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .brand-mark {
+      width: 12px;
+      height: 34px;
+      border-radius: 2px;
+      background: var(--gold);
+    }
+
+    .toolbar { display: flex; align-items: center; gap: 10px; }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid #d6a652;
+      outline-offset: 2px;
+    }
+
+    .button-light { color: var(--green); background: #fff; }
+    .button-quiet { color: #fff; background: transparent; border-color: #78918a; }
+    .button-quiet:hover { background: #244e45; }
+    .button-light:hover { background: #edf3ef; }
+
+    main { max-width: 1120px; margin: 34px auto 60px; padding: 0 24px; }
+
+    .intro { margin-bottom: 22px; }
+    h1 { margin: 0; color: var(--green); font-size: clamp(1.7rem, 3vw, 2.25rem); }
+    .intro p { color: var(--muted); margin: 6px 0 0; }
+
+    .sheet {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 8px 26px rgba(27, 57, 48, .07);
+      overflow: hidden;
+    }
+
+    .section { padding: 22px 26px 26px; border-bottom: 1px solid var(--line); }
+    .section:last-child { border-bottom: 0; }
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--green);
+      font-size: 1rem;
+      font-weight: 750;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .section-heading::before {
+      content: "";
+      width: 4px;
+      height: 19px;
+      background: var(--gold);
+      border-radius: 3px;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px 18px; }
+    .field { min-width: 0; }
+    .span-2 { grid-column: span 2; }
+    .span-4 { grid-column: 1 / -1; }
+    label, .field-label {
+      display: block;
+      margin-bottom: 6px;
+      color: #405550;
+      font-size: .83rem;
+      font-weight: 650;
+    }
+
+    input, select, textarea {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      min-height: 40px;
+      padding: 9px 11px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #cbd6d1;
+      border-radius: 5px;
+      font: inherit;
+    }
+    input::placeholder, textarea::placeholder { color: #9aa8a3; }
+    textarea { min-height: 78px; resize: vertical; }
+    input:hover, select:hover, textarea:hover { border-color: #91a69d; }
+
+    .testing-section {
+      margin: 20px 26px;
+      padding: 22px;
+      border: 1px solid var(--line) !important;
+      border-radius: 9px;
+      background: #fff;
+    }
+    .testing-section .section-heading { margin-bottom: 8px; }
+    .test-count { margin-left: 2px; color: var(--muted); font-weight: 600; letter-spacing: 0; }
+    .test-intro { color: var(--muted); margin: 0 0 16px; font-size: .9rem; }
+    .test-picker { position: relative; max-width: 650px; margin-bottom: 18px; }
+    .test-picker label { margin-bottom: 6px; }
+    .test-picker input { padding-right: 42px; }
+    .search-icon { position: absolute; right: 13px; top: 37px; color: var(--muted); pointer-events: none; }
+    .test-options {
+      position: static;
+      width: 100%;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-top: 4px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(27, 57, 48, .13);
+    }
+    .test-options[hidden] { display: none; }
+    .test-option {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+      border: 0;
+      border-radius: 4px;
+      font-weight: 400;
+      cursor: pointer;
+    }
+    .test-option:hover, .test-option[aria-selected="true"] { background: var(--green-soft); }
+    .no-test-results { padding: 10px 12px; color: var(--muted); }
+    .add-test-button { margin-top: 10px; color: #fff; background: var(--green); }
+    .add-test-button:hover { background: #244e45; }
+    .test-validation { margin: 7px 0 0; color: #a22d2d; font-size: .86rem; }
+    .test-validation:empty { display: none; }
+    .selected-tests-title { margin: 0 0 8px; color: #53655f; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .test-table { width: 100%; border-collapse: collapse; }
+    .test-table th { padding: 9px 10px; text-align: left; color: #53655f; background: #f4f7f5; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; }
+    .test-table td { padding: 8px 10px; border-top: 1px solid #e8eeeb; vertical-align: middle; }
+    .test-name { font-weight: 650; }
+    .test-comment { min-height: 40px; }
+    .remove-test { min-height: 38px; padding: 7px 11px; color: #8d2929; background: #fff; border-color: #e2caca; }
+    .remove-test:hover { background: #fbf0f0; }
+    .empty-tests { padding: 12px 10px !important; color: var(--muted); font-size: .9rem; }
+    .test-card-label { display: none; }
+
+    .signoff { display: grid; grid-template-columns: 1.3fr 2fr 2fr 1fr; gap: 18px; }
+    .signoff + .signoff { margin-top: 18px; }
+    .note { margin: 14px 0 0; color: var(--muted); font-size: .82rem; }
+    .save-state { min-width: 130px; color: #dce8e2; font-size: .8rem; }
+    .photo-hint { margin: 6px 0 0; color: var(--muted); font-size: .82rem; }
+    .photo-preview { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; }
+    .photo-preview[hidden] { display: none; }
+    .photo-preview img { display: block; max-width: min(100%, 360px); max-height: 260px; object-fit: contain; border: 1px solid var(--line); border-radius: 6px; background: #f4f7f5; }
+    .remove-photo { color: var(--green); background: var(--green-soft); border-color: var(--line); }
+
+    @media (max-width: 760px) {
+      .topbar { padding: 14px 18px; }
+      .save-state { display: none; }
+      main { margin-top: 24px; padding: 0 14px; }
+      .section { padding: 19px 16px 21px; }
+      .testing-section { margin: 14px 14px; padding: 17px 14px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .span-4 { grid-column: 1 / -1; }
+      .signoff { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .test-picker { max-width: none; }
+      .test-table thead { display: none; }
+      .test-table, .test-table tbody, .test-table tr, .test-table td { display: block; width: 100%; }
+      .test-table tr.test-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 12px; border: 1px solid var(--line); border-radius: 7px; margin-bottom: 10px; }
+      .test-table td { padding: 0; border: 0; }
+      .test-table td:first-child { grid-column: 1 / -1; }
+      .test-table td:nth-child(2) { grid-column: 1; }
+      .test-table td:nth-child(3) { grid-column: 2; grid-row: 2; align-self: end; }
+      .test-table .empty-tests { border: 1px dashed var(--line); border-radius: 7px; padding: 14px !important; }
+      .test-card-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: .75rem; font-weight: 650; }
+    }
+
+    @media (max-width: 480px) {
+      .topbar { align-items: flex-start; flex-direction: column; gap: 12px; }
+      .toolbar { width: 100%; }
+      .toolbar button { flex: 1; }
+      .grid { grid-template-columns: 1fr; }
+      .span-2, .span-4 { grid-column: auto; }
+      input, select, textarea { min-height: 44px; font-size: 16px; }
+      button { min-height: 44px; }
+      .test-table tr.test-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+      .test-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+      .test-table td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; justify-self: start; }
+      .test-table input { min-height: 44px; font-size: 16px; }
+      .add-test-button { width: 100%; }
+      .signoff { grid-template-columns: 1fr; }
+      .signoff .field:last-child { grid-column: auto; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: #fff; font-size: 10pt; }
+      .topbar { padding: 0 0 8mm; color: var(--green); background: #fff; border-bottom: 2px solid var(--green); }
+      .toolbar, .intro p, .note, .photo-picker, .remove-photo { display: none !important; }
+      main { max-width: none; margin: 7mm 0 0; padding: 0; }
+      .intro { margin-bottom: 5mm; }
+      h1 { font-size: 20pt; }
+      .sheet { border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+      .section { padding: 4mm 0; break-inside: avoid; }
+      .testing-section { margin: 5mm 0; padding: 4mm; border: 1px solid #aab8b2 !important; break-inside: auto; }
+      .section-heading { margin-bottom: 3mm; font-size: 9pt; }
+      .grid { gap: 3mm 4mm; }
+      input, select, textarea { min-height: 7mm; padding: 1mm 2mm; border-color: #aab8b2; border-radius: 0; font-size: 9pt; }
+      textarea { min-height: 12mm; }
+      .test-table { display: table; }
+      .test-table thead { display: table-header-group; }
+      .test-table tbody { display: table-row-group; }
+      .test-table tr.test-row { display: table-row; }
+      .test-table td, .test-table th { display: table-cell; padding: 1.5mm 2mm; border-top: 1px solid #e8eeeb; }
+      .test-card-label { display: none; }
+      .test-picker, .add-test-button, .test-validation { display: none !important; }
+      .test-table th { padding: 2mm; }
+      .test-comment { min-height: 7mm; }
+      .remove-test { display: none !important; }
+      .signoff { gap: 4mm; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>MAE MATERIALS</span></div>
+    <div class="toolbar" aria-label="Certificate actions">
+      <span class="save-state" id="save-state" role="status" aria-live="polite">Ready</span>
+      <button class="button-quiet" id="clear-form" type="button">Clear form</button>
+      <button class="button-light" id="print-form" type="button">Print / Save PDF</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="intro">
+      <h1>Sampling Certificate</h1>
+      <p>Complete the sample details and required tests. Your entries are saved in this browser.</p>
+    </div>
+
+    <form class="sheet" id="certificate" autocomplete="on">
+      <section class="section" aria-labelledby="project-title">
+        <h2 class="section-heading" id="project-title">Project information</h2>
+        <div class="grid">
+          <div class="field span-2"><label for="project-name">Project name</label><input id="project-name" name="projectName"></div>
+          <div class="field span-2"><label for="project-number">Project no.</label><input id="project-number" name="projectNumber"></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sample-title">
+        <h2 class="section-heading" id="sample-title">Sample information</h2>
+        <div class="grid">
+          <div class="field span-2"><label for="sample-number">Sample number</label><input id="sample-number" name="sampleNumber"></div>
+          <div class="field span-2"><label for="site-reference">Site reference</label><input id="site-reference" name="siteReference"></div>
+          <div class="field span-2"><label for="material">Material</label><input id="material" name="material"></div>
+          <div class="field span-2"><label for="sample-location">Sample location</label><input id="sample-location" name="sampleLocation"></div>
+          <div class="field"><label for="sample-type">Type</label><input id="sample-type" name="sampleType"></div>
+          <div class="field"><label for="equipment">Sample equipment</label>
+            <select id="equipment" name="equipment"><option value="">Select equipment</option><option>Shovel</option><option>Hand</option><option>Scoop</option></select>
+          </div>
+          <div class="field span-2"><label for="supplier">Supplier / source</label><input id="supplier" name="supplier"></div>
+          <div class="field span-2"><label for="sample-date">Sample date / time</label><input id="sample-date" name="sampleDate" type="datetime-local"></div>
+          <div class="field"><label for="weather-temperature">Weather temperature</label>
+            <select id="weather-temperature" name="weatherTemperature"><option value="">Select temperature</option><option>Cold</option><option>Cool</option><option>Mild</option><option>Warm</option><option>Hot</option></select>
+          </div>
+          <div class="field"><label for="weather-conditions">Weather conditions</label>
+            <select id="weather-conditions" name="weatherConditions"><option value="">Select conditions</option><option>Clear - Dry</option><option>Overcast</option><option>Overcast - Light Rain</option><option>Overcast - Heavy Rain</option></select>
+          </div>
+          <div class="field span-2"><label for="sample-method">Sample method</label>
+            <select id="sample-method" name="sampleMethod"><option value="">Select method</option><option>BS 1377-1 (Earthworks)</option><option>BS EN 932-1 (Aggregates)</option></select>
+          </div>
+          <div class="field span-2"><label for="sample-reason">Reason for sample</label>
+            <select id="sample-reason" name="sampleReason"><option value="">Select reason</option><option>Compliance</option><option>Classification</option><option>Routine</option></select>
+          </div>
+          <div class="field"><label for="increment-mass">Mass of increments</label><input id="increment-mass" name="incrementMass"></div>
+          <div class="field"><label for="increment-count">No. of increments</label><input id="increment-count" name="incrementCount" type="number" min="0" step="1"></div>
+          <div class="field"><label for="bag-count">Number of bags</label><input id="bag-count" name="bagCount" type="number" min="0" step="1"></div>
+          <div class="field"><label for="bulk-mass">Bulk mass (kg)</label><input id="bulk-mass" name="bulkMass" type="number" min="0" step="any"></div>
+          <div class="field span-4">
+            <div class="photo-picker">
+              <label for="photo-upload">Sample photograph</label>
+              <input id="photo-upload" type="file" accept="image/*" capture="environment" aria-describedby="photo-hint">
+              <p class="photo-hint" id="photo-hint">Choose an image or take a photo with your camera.</p>
+            </div>
+            <div class="photo-preview" id="photo-preview" hidden>
+              <img id="photo-preview-image" alt="Sample photograph preview">
+              <div><p class="photo-hint" id="photo-name"></p><button class="remove-photo" id="remove-photo" type="button">Remove photo</button></div>
+            </div>
+          </div>
+          <div class="field span-4"><label for="sample-comments">Comments</label><textarea id="sample-comments" name="sampleComments"></textarea></div>
+          <div class="field span-2"><label for="sampler-name">Sampler print name</label><input id="sampler-name" name="samplerName"></div>
+          <div class="field span-2"><label for="sampler-signature">Sampler signature</label><input id="sampler-signature" name="samplerSignature"></div>
+        </div>
+      </section>
+
+      <section class="section testing-section" id="lab-testing" aria-labelledby="lab-tests-title">
+        <h2 class="section-heading" id="lab-tests-title">Laboratory Testing <span class="test-count" id="lab-test-count">(0)</span></h2>
+        <p class="test-intro">Add the laboratory testing required for this sample.</p>
+        <div class="test-picker">
+          <label for="lab-test-search">Search and select laboratory test</label>
+          <input id="lab-test-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="lab-test-options" aria-describedby="lab-test-validation" placeholder="Search laboratory tests…" autocomplete="off">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <div class="test-options" id="lab-test-options" role="listbox" hidden></div>
+          <p class="test-validation" id="lab-test-validation" role="status" aria-live="polite"></p>
+          <button class="add-test-button" id="add-lab-test" type="button">Add Laboratory Test</button>
+        </div>
+        <h3 class="selected-tests-title">Selected Tests</h3>
+        <table class="test-table">
+          <thead><tr><th scope="col">Test / Method</th><th scope="col">Comments</th><th scope="col">Actions</th></tr></thead>
+          <tbody id="lab-test-rows" data-test-list="lab"></tbody>
+        </table>
+      </section>
+
+      <section class="section testing-section" id="site-testing" aria-labelledby="site-tests-title">
+        <h2 class="section-heading" id="site-tests-title">Site Testing <span class="test-count" id="site-test-count">(0)</span></h2>
+        <p class="test-intro">Add the site testing required for this sample.</p>
+        <div class="test-picker">
+          <label for="site-test-search">Search and select site test</label>
+          <input id="site-test-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="site-test-options" aria-describedby="site-test-validation" placeholder="Search site tests…" autocomplete="off">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <div class="test-options" id="site-test-options" role="listbox" hidden></div>
+          <p class="test-validation" id="site-test-validation" role="status" aria-live="polite"></p>
+          <button class="add-test-button" id="add-site-test" type="button">Add Site Test</button>
+        </div>
+        <h3 class="selected-tests-title">Selected Tests</h3>
+        <table class="test-table">
+          <thead><tr><th scope="col">Test / Method</th><th scope="col">Comments</th><th scope="col">Actions</th></tr></thead>
+          <tbody id="site-test-rows" data-test-list="site"></tbody>
+        </table>
+      </section>
+
+      <section class="section" aria-labelledby="receipt-title">
+        <h2 class="section-heading" id="receipt-title">Sample received by</h2>
+        <div class="signoff">
+          <div class="field"><label for="received-by-role">Received by</label>
+            <select id="received-by-role" name="receivedByRole"><option value="">Select</option><option>Sample collection</option><option>Laboratory</option></select>
+          </div>
+          <div class="field"><label for="received-by">Name</label><input id="received-by" name="receivedBy"></div>
+          <div class="field"><label for="receiver-signature">Signature</label><input id="receiver-signature" name="receiverSignature"></div>
+          <div class="field"><label for="received-date">Date</label><input id="received-date" name="receivedDate" type="date"></div>
+        </div>
+        <p class="note">* Indicate whether the sample was received by sample collection or laboratory personnel.</p>
+      </section>
+    </form>
+  </main>
+
+  <script>
+    (() => {
+      const storageKey = "mae-sampling-certificate-v1";
+      const labTests = [
+        "Bitumen content", "BS EN Grading", "BS Grading", "Chemical Suite",
+        "Class Ra (asphalt content)", "Constituents of coarse recycled aggregates", "Frost Heave", "IDD of chalk",
+        "Los Angeles Coefficient", "Magnesium Sulphate Soundness", "Moisture Condition Value", "Moisture Content",
+        "Optimum Moisture Content", "Optimum Moisture Content (Vib. Hammer)", "Permeability", "Ph Value",
+        "Plasticity Index", "Redox Potential", "Shear Box", "Slake Durability",
+        "Sulphate Testing (Water Soluble Sulphate)", "Sulphide Content", "Topsoil Suite", "Total Sulphur",
+        "Undrained shear parameters", "Undrained shear strength", "Uniformity Coefficient", "Water Absorption", "Water Content"
+      ];
+      const siteTests = [
+        "CBR Plate Load Testing", "Cyclic Plate Load Testing", "Dynamic Cone Pentrometer (DCP) / CBR",
+        "Field Dry Density", "Light Weight Deflectometer (LWD)", "Plate CBR", "Static plate load test"
+      ];
+      const form = document.getElementById("certificate");
+      const status = document.getElementById("save-state");
+      const photoStorageKey = storageKey + "-photo";
+      const photoInput = document.getElementById("photo-upload");
+      const photoPreview = document.getElementById("photo-preview");
+      const photoPreviewImage = document.getElementById("photo-preview-image");
+      const photoName = document.getElementById("photo-name");
+      let nextTestId = 0;
+      const testingSections = [
+        {
+          key: "lab",
+          storageKey: "laboratoryTests",
+          tests: labTests,
+          rows: document.getElementById("lab-test-rows"),
+          search: document.getElementById("lab-test-search"),
+          options: document.getElementById("lab-test-options"),
+          addButton: document.getElementById("add-lab-test"),
+          count: document.getElementById("lab-test-count"),
+          validation: document.getElementById("lab-test-validation"),
+          selected: [],
+          activeIndex: -1
+        },
+        {
+          key: "site",
+          storageKey: "siteTests",
+          tests: siteTests,
+          rows: document.getElementById("site-test-rows"),
+          search: document.getElementById("site-test-search"),
+          options: document.getElementById("site-test-options"),
+          addButton: document.getElementById("add-site-test"),
+          count: document.getElementById("site-test-count"),
+          validation: document.getElementById("site-test-validation"),
+          selected: [],
+          activeIndex: -1
+        }
+      ];
+
+      function setTestValidation(section, message) {
+        section.validation.textContent = message;
+        section.search.setAttribute("aria-invalid", message ? "true" : "false");
+      }
+
+      function closeTestOptions(section) {
+        section.options.hidden = true;
+        section.search.setAttribute("aria-expanded", "false");
+        section.search.removeAttribute("aria-activedescendant");
+        section.activeIndex = -1;
+      }
+
+      function renderTestOptions(section) {
+        const query = section.search.value.trim().toLocaleLowerCase();
+        const selected = new Set(section.selected.map((item) => item.test));
+        const matches = section.tests.filter((test) =>
+          !selected.has(test) && test.toLocaleLowerCase().includes(query)
+        );
+        section.options.replaceChildren();
+        section.activeIndex = -1;
+        section.search.removeAttribute("aria-activedescendant");
+        section.search.setAttribute("aria-expanded", "true");
+        section.options.hidden = false;
+
+        if (matches.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "no-test-results";
+          empty.textContent = "No matching tests found.";
+          empty.setAttribute("role", "status");
+          section.options.appendChild(empty);
+          return;
+        }
+
+        matches.forEach((test, index) => {
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className = "test-option";
+          option.id = section.key + "-test-option-" + index;
+          option.setAttribute("role", "option");
+          option.setAttribute("aria-selected", "false");
+          option.textContent = test;
+          option.addEventListener("mousedown", (event) => event.preventDefault());
+          option.addEventListener("click", () => addSelectedTest(section, test));
+          section.options.appendChild(option);
+        });
+      }
+
+      function setActiveTestOption(section, index) {
+        const options = section.options.querySelectorAll('[role="option"]');
+        if (options.length === 0) return;
+        section.activeIndex = (index + options.length) % options.length;
+        options.forEach((option, optionIndex) => {
+          const active = optionIndex === section.activeIndex;
+          option.setAttribute("aria-selected", active ? "true" : "false");
+          if (active) {
+            section.search.setAttribute("aria-activedescendant", option.id);
+            option.scrollIntoView({ block: "nearest" });
+          }
+        });
+      }
+
+      function renderSelectedTests(section) {
+        section.rows.replaceChildren();
+        section.count.textContent = "(" + section.selected.length + ")";
+        if (section.selected.length === 0) {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.className = "empty-tests";
+          cell.colSpan = 3;
+          cell.textContent = "No tests selected yet.";
+          row.appendChild(cell);
+          section.rows.appendChild(row);
+          return;
+        }
+
+        section.selected.forEach((item) => {
+          const row = document.createElement("tr");
+          row.className = "test-row";
+          row.dataset.testId = item.id;
+
+          const testCell = document.createElement("td");
+          const testName = document.createElement("span");
+          testName.className = "test-name";
+          testName.textContent = item.test;
+          testCell.appendChild(testName);
+
+          const commentCell = document.createElement("td");
+          const commentLabel = document.createElement("span");
+          commentLabel.className = "test-card-label";
+          commentLabel.textContent = "Comment";
+          const comment = document.createElement("input");
+          comment.className = "test-comment";
+          comment.type = "text";
+          comment.value = item.comment;
+          comment.dataset.testComment = "";
+          comment.setAttribute("aria-label", "Comments for " + item.test);
+          commentCell.append(commentLabel, comment);
+
+          const actionsCell = document.createElement("td");
+          const actionLabel = document.createElement("span");
+          actionLabel.className = "test-card-label";
+          actionLabel.textContent = "Actions";
+          const remove = document.createElement("button");
+          remove.className = "remove-test";
+          remove.type = "button";
+          remove.textContent = "Remove";
+          remove.setAttribute("aria-label", "Remove " + item.test);
+          remove.addEventListener("click", () => {
+            syncSelectedTests();
+            section.selected = section.selected.filter((selected) => selected.id !== item.id);
+            renderSelectedTests(section);
+            setTestValidation(section, "");
+            saveForm();
+          });
+          actionsCell.append(actionLabel, remove);
+          row.append(testCell, commentCell, actionsCell);
+          section.rows.appendChild(row);
+        });
+      }
+
+      function syncSelectedTests() {
+        testingSections.forEach((section) => {
+          section.selected = Array.from(section.rows.querySelectorAll(".test-row")).map((row, index) => ({
+            id: row.dataset.testId || String(++nextTestId),
+            test: row.querySelector(".test-name").textContent,
+            comment: row.querySelector(".test-comment").value,
+            order: index
+          })).map(({ id, test, comment }) => ({ id, test, comment }));
+        });
+      }
+
+      function addSelectedTest(section, test) {
+        if (!section.tests.includes(test)) {
+          setTestValidation(section, "Select a test from the available results.");
+          return;
+        }
+        if (section.selected.some((item) => item.test === test)) {
+          setTestValidation(section, "This test is already selected.");
+          renderTestOptions(section);
+          return;
+        }
+        syncSelectedTests();
+        section.selected.push({ id: String(++nextTestId), test, comment: "" });
+        section.search.value = "";
+        closeTestOptions(section);
+        setTestValidation(section, "");
+        renderSelectedTests(section);
+        saveForm();
+        section.search.focus();
+      }
+
+      function initializeTestPicker(section) {
+        section.search.addEventListener("focus", () => renderTestOptions(section));
+        section.search.addEventListener("input", () => {
+          setTestValidation(section, "");
+          renderTestOptions(section);
+        });
+        section.search.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            if (section.options.hidden) renderTestOptions(section);
+            const step = event.key === "ArrowDown" ? 1 : -1;
+            const optionCount = section.options.querySelectorAll('[role="option"]').length;
+            const nextIndex = section.activeIndex < 0
+              ? (step > 0 ? 0 : optionCount - 1)
+              : section.activeIndex + step;
+            setActiveTestOption(section, nextIndex);
+          } else if (event.key === "Enter") {
+            event.preventDefault();
+            const options = section.options.querySelectorAll('[role="option"]');
+            if (section.activeIndex >= 0 && options[section.activeIndex]) {
+              addSelectedTest(section, options[section.activeIndex].textContent);
+            } else {
+              const exactMatch = Array.from(options).find((option) =>
+                option.textContent.toLocaleLowerCase() === section.search.value.trim().toLocaleLowerCase()
+              );
+              if (exactMatch) {
+                addSelectedTest(section, exactMatch.textContent);
+              } else if (!section.options.hidden && section.options.querySelector('[role="option"]')) {
+                setTestValidation(section, "Choose a test from the search results.");
+              } else if (section.search.value.trim()) {
+                setTestValidation(section, "No matching tests found.");
+              } else {
+                setTestValidation(section, "Search for and select a test first.");
+              }
+              if (!section.options.hidden) renderTestOptions(section);
+            }
+          } else if (event.key === "Escape") {
+            closeTestOptions(section);
+          }
+        });
+        section.addButton.addEventListener("click", () => {
+          section.search.focus();
+          renderTestOptions(section);
+        });
+        section.search.addEventListener("focusout", (event) => {
+          if (!section.options.contains(event.relatedTarget) && event.relatedTarget !== section.addButton) {
+            closeTestOptions(section);
+          }
+        });
+        section.rows.addEventListener("input", (event) => {
+          if (event.target.matches(".test-comment")) saveForm();
+        });
+        renderSelectedTests(section);
+      }
+
+      function restoreSelectedTests(section, data) {
+        let savedTests = data[section.storageKey];
+        if (!Array.isArray(savedTests)) {
+          const legacyTests = [];
+          const legacyTestPattern = new RegExp("^" + section.key + "Test(\\d+)$");
+          const legacyIndexes = Object.keys(data)
+            .map((key) => legacyTestPattern.exec(key))
+            .filter(Boolean)
+            .map((match) => Number(match[1]))
+            .sort((left, right) => left - right);
+          legacyIndexes.forEach((index) => {
+            const test = data[section.key + "Test" + index];
+            const comment = data[section.key + "Comment" + index];
+            if (typeof test === "string" && test.trim()) {
+              legacyTests.push({ test, comment: typeof comment === "string" ? comment : "" });
+            }
+          });
+          savedTests = legacyTests;
+        }
+        const seen = new Set();
+        section.selected = [];
+        savedTests.forEach((item) => {
+          if (!item || typeof item.test !== "string" || typeof item.comment !== "string") return;
+          if (!section.tests.includes(item.test) || seen.has(item.test)) return;
+          seen.add(item.test);
+          section.selected.push({ id: String(++nextTestId), test: item.test, comment: item.comment });
+        });
+        renderSelectedTests(section);
+      }
+
+      function readForm() {
+        const data = {};
+        Array.from(form.elements).forEach((element) => {
+          if (element.name && !element.hasAttribute("data-test-comment")) {
+            data[element.name] = element.type === "checkbox" ? element.checked : element.value;
+          }
+        });
+        syncSelectedTests();
+        testingSections.forEach((section) => {
+          data[section.storageKey] = section.selected.map(({ test, comment }) => ({ test, comment }));
+        });
+        return data;
+      }
+
+      function saveForm() {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(readForm()));
+          status.textContent = "Saved in this browser";
+        } catch (error) {
+          status.textContent = "Could not save in this browser";
+          console.error("Unable to save the sampling certificate.", error);
+        }
+      }
+
+      function showPhoto(dataUrl, fileName) {
+        photoPreviewImage.src = dataUrl;
+        photoName.textContent = fileName || "Saved sample photograph";
+        photoPreview.hidden = false;
+      }
+
+      function loadImage(file) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          const objectUrl = URL.createObjectURL(file);
+          image.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(image);
+          };
+          image.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error("The selected file could not be read as an image."));
+          };
+          image.src = objectUrl;
+        });
+      }
+
+      async function preparePhoto(file) {
+        if (!file.type.startsWith("image/")) {
+          throw new Error("Please choose an image file.");
+        }
+        const image = await loadImage(file);
+        const maxDimension = 1600;
+        const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(image.naturalWidth * scale);
+        canvas.height = Math.round(image.naturalHeight * scale);
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("This browser could not prepare the selected photo.");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL("image/jpeg", 0.82);
+      }
+
+      function restorePhoto() {
+        try {
+          const saved = localStorage.getItem(photoStorageKey);
+          if (!saved) return;
+          const photo = JSON.parse(saved);
+          if (!photo || typeof photo.dataUrl !== "string" || !photo.dataUrl.startsWith("data:image/")) {
+            throw new Error("Saved photo data has an invalid format.");
+          }
+          showPhoto(photo.dataUrl, typeof photo.name === "string" ? photo.name : "");
+        } catch (error) {
+          status.textContent = "Could not restore saved photo";
+          console.error("Unable to restore the sampling certificate photo.", error);
+        }
+      }
+
+      function restoreForm() {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          if (!saved) return;
+          const data = JSON.parse(saved);
+          if (data === null || typeof data !== "object" || Array.isArray(data)) {
+            throw new Error("Saved certificate data has an invalid format.");
+          }
+          Array.from(form.elements).forEach((element) => {
+            if (!element.name || !Object.prototype.hasOwnProperty.call(data, element.name)) return;
+            if (element.type === "checkbox") element.checked = data[element.name] === true;
+            else if (typeof data[element.name] === "string") element.value = data[element.name];
+          });
+          testingSections.forEach((section) => restoreSelectedTests(section, data));
+          status.textContent = "Restored saved certificate";
+        } catch (error) {
+          status.textContent = "Could not restore saved certificate";
+          console.error("Unable to restore the sampling certificate.", error);
+        }
+      }
+
+      testingSections.forEach(initializeTestPicker);
+      restoreForm();
+      restorePhoto();
+      form.addEventListener("input", saveForm);
+      form.addEventListener("change", saveForm);
+      photoInput.addEventListener("change", async () => {
+        const file = photoInput.files[0];
+        if (!file) return;
+        try {
+          const dataUrl = await preparePhoto(file);
+          showPhoto(dataUrl, file.name);
+          try {
+            localStorage.setItem(photoStorageKey, JSON.stringify({ dataUrl, name: file.name }));
+            status.textContent = "Photo saved in this browser";
+          } catch (error) {
+            status.textContent = "Photo loaded but could not be saved in this browser";
+            console.error("Unable to save the sampling certificate photo.", error);
+          }
+        } catch (error) {
+          status.textContent = "Could not load the selected photo";
+          console.error("Unable to load the sampling certificate photo.", error);
+        }
+      });
+      document.getElementById("remove-photo").addEventListener("click", () => {
+        photoInput.value = "";
+        photoPreviewImage.removeAttribute("src");
+        photoPreview.hidden = true;
+        try {
+          localStorage.removeItem(photoStorageKey);
+          status.textContent = "Photo removed";
+        } catch (error) {
+          status.textContent = "Could not remove saved photo";
+          console.error("Unable to remove the saved sampling certificate photo.", error);
+        }
+      });
+      document.getElementById("print-form").addEventListener("click", () => window.print());
+      document.getElementById("clear-form").addEventListener("click", () => {
+        if (!window.confirm("Clear all certificate entries saved in this browser?")) return;
+        form.reset();
+        testingSections.forEach((section) => {
+          section.selected = [];
+          section.search.value = "";
+          closeTestOptions(section);
+          setTestValidation(section, "");
+          renderSelectedTests(section);
+        });
+        try {
+          localStorage.removeItem(storageKey);
+          localStorage.removeItem(photoStorageKey);
+          photoInput.value = "";
+          photoPreviewImage.removeAttribute("src");
+          photoPreview.hidden = true;
+          status.textContent = "Form cleared";
+        } catch (error) {
+          status.textContent = "Could not clear saved certificate";
+          console.error("Unable to clear the saved sampling certificate.", error);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
