@@ -12,18 +12,45 @@
     <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>MAE MATERIALS</span></div>
     <div class="toolbar" aria-label="Certificate actions">
       <span class="save-state" id="save-state" role="status" aria-live="polite">Ready</span>
-      <button class="button-quiet" id="clear-form" type="button">Clear form</button>
-      <button class="button-light" id="print-form" type="button">Print / Save PDF</button>
+      <button class="button-quiet" id="open-archive" type="button" disabled>Archive</button>
+      <button class="button-quiet" id="save-to-archive" type="button" disabled>Save to archive</button>
+      <button class="button-quiet" id="return-to-archive" type="button" hidden>Back to archive</button>
+      <button class="button-quiet" id="new-from-archive" type="button" hidden>Start new draft</button>
+      <button class="button-quiet" id="clear-form" type="button" disabled>Clear form</button>
+      <button class="button-light" id="print-form" type="button" disabled>Print / Save PDF</button>
     </div>
   </header>
 
   <main>
     <div class="intro">
       <h1>Sampling Certificate</h1>
-      <p>Complete the sample details and required tests. Your entries are saved in this browser.</p>
+      <p>Complete the sample details and required tests. Certificates are stored on this device.</p>
     </div>
 
-    <form class="sheet" id="certificate" autocomplete="on">
+    <section class="archive-panel" id="archive-panel" aria-labelledby="archive-title" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2 id="archive-title">Certificate archive</h2>
+          <p>Saved certificates stay on this device. Export backups regularly to protect them.</p>
+        </div>
+        <div class="archive-backup-actions">
+          <button class="button-secondary" id="export-archive" type="button" disabled>Export backup</button>
+          <button class="button-secondary" id="import-archive-button" type="button" disabled>Import backup</button>
+          <input id="import-archive-file" type="file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+      <label for="archive-search">Search by certificate ID, project, sample number or date</label>
+      <input id="archive-search" type="search" placeholder="Search archive…" autocomplete="off">
+      <p class="archive-status" id="archive-status" role="status" aria-live="polite"></p>
+      <div class="archive-list" id="archive-list" aria-live="polite"></div>
+      <button class="button-quiet archive-back" id="close-archive" type="button">Back to draft</button>
+    </section>
+
+    <div class="archive-view-banner" id="archive-view-banner" hidden>
+      <p id="archive-view-message">Viewing an archived certificate (read-only).</p>
+    </div>
+
+    <form class="sheet" id="certificate" autocomplete="on" inert>
       <section class="section" aria-labelledby="project-title">
         <h2 class="section-heading" id="project-title">Project information</h2>
         <div class="grid">
