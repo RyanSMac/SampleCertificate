@@ -1011,4 +1011,13 @@
       setView("draft");
       void initializeStorage();
     })();
+
+    if ("serviceWorker" in navigator && window.isSecureContext && window.location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        const serviceWorkerUrl = new URL("./service-worker.js", document.baseURI);
+        navigator.serviceWorker.register(serviceWorkerUrl).catch((error) => {
+          console.warn("Offline app-shell caching is unavailable in this browser.", error);
+        });
+      });
+    }
   
